@@ -1,0 +1,48 @@
+steps:
+  # Step 0: Emit custom log entry (start of build)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gcloud logging write cloudbuild "Starting build and deploy for react-app" --severity=INFO
+
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Docker Image'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/ai-claims-processor', '.']
+
+  # Step 2: Push the image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Docker Image'
+    args: ['push', 'gcr.io/$PROJECT_ID/ai-claims-processor']
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to Cloud Run'
+    entrypoint: gcloud
+    args:
+      [
+        'run', 'deploy', 'react-app',
+        '--image', 'gcr.io/$PROJECT_ID/ai-claims-processor',
+        '--region', 'us-central1',
+        '--platform', 'managed',
+        '--allow-unauthenticated',
+        '--port', '8080'
+      ]
+
+  # Step 4: Emit custom log entry (end of build)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gcloud logging write cloudbuild "Finished deployment of ai-claims-processor" --severity=INFO
+
+images:
+  - gcr.io/$PROJECT_ID/ai-claims-processor
+
+options:
+  logging: CLOUD_LOGGING_ONLY  # Ensures all logs go to Cloud Logging
+
+timeout: 900s  # Optional: increase timeout to 15 min
