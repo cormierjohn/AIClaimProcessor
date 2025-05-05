@@ -1,0 +1,537 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ensure slick-track is a flex container */
+.slick-track {
+  display: flex !important;
+  flex-wrap: nowrap; /* Prevent wrapping */
+}
+
+/* Ensure each slick-slide has a width */
+.slick-slide {
+  width: 100%;  /* Ensure full width for each slide */
+}
+
+.slick-list {
+  overflow: hidden; /* Ensure no overflow */
+}
+
+/* You may need to adjust item width for responsiveness */
+.slick-slide > div {
+  width: 100%; /* Or set to a fixed width depending on your design */
+}
+
+/* Custom slider styles */
+.custom-slider .ant-slider-track {
+  background-color: #0029f7; /* Track color */
+}
+
+.custom-slider .ant-slider-handle {
+  border-color: #4CAF50; /* Handle border color */
+  background-color: #4CAF50; /* Handle background color */
+}
+
+.custom-slider .ant-slider-rail {
+  background-color: #ddd; /* Rail color */
+}
+.custom-slider .ant-slider-handle::after {
+  
+  background: #0029f7 !important;     /* Example style */
+  
+}
+.ant-card-head {
+  display: block !important;
+  min-height: 30px !important;
+}
+.ant-card-head, .ant-card-body {
+  text-align: left !important;
+}
+.ant-card-body {
+  padding-top: 0px !important;
+ 
+}
+.ant-table-thead {
+  height: 90px !important;
+}
+
+.ant-table-tbody > tr.custom-row-height:hover > td {
+  background-color: #E9EDFE !important; /* Replace with your desired color */
+  cursor: pointer; /* Optional: changes cursor on hover */
+}
+.claim-details-container {
+  padding: 2rem;
+  background-color: #F8F9FD;
+}
+
+.page-title {
+  font-size: 24px;
+  margin-bottom: 1rem;
+}
+
+.claim-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content:space-between;
+  gap: 1.5rem;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.status-tag {
+  padding: 0.3rem 0.8rem;
+  background-color: #fdecea;
+  color: #e63946;
+  border-radius: 20px;
+  font-weight: bold;
+  align-self: center;
+  margin-left: -10px;
+}
+
+.tab-header {
+  display: flex;
+      gap: 20px;
+      border-bottom: 2px solid #ddd;
+      margin-top: 20px;
+      padding-bottom: 8px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+}
+
+.tab-header button {
+  background: none;
+  border: none;
+  padding: 6px 0;
+  font-size: 16px;
+  color: #555;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.tab-header button:hover {
+  color: #000;
+}
+
+.tab-header button.active-tab {
+  color: #007bff;
+  border-color: #007bff;
+  font-weight: 600;
+}
+
+
+.log-steps-table {
+  padding: 16px;
+}
+
+.log-table {
+  display: grid;
+  row-gap: 8px;
+ 
+  
+}
+
+.log-table-header,
+.log-table-row {
+  display: grid;
+  gap: 10px; /* Optional: space between the columns */
+  align-items: center;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 12px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  grid-template-columns: 1fr 1fr 5fr 2fr 1fr 5fr 1fr !important; 
+}
+
+.log-table-header {
+  background-color: #ececec;
+  font-weight: bold;
+  
+}
+
+.log-table-row:hover {
+  background-color: #e6f7ff;
+  transform: translateY(-2px);
+}
+
+.log-cell {
+  padding: 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.time-cell {
+  font-family: monospace;
+  font-weight: bold;
+  color: #555;
+}
+
+.ai-reasoning {
+  color: #3c3c3c;
+  font-style: italic;
+}
+
+/* Soft fade-in animation */
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.6s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+
+.log-cell {
+  padding: 4px 8px;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Column widths */
+.time-cell {
+  width: 90px;
+  flex-shrink: 0;
+  font-family: monospace;
+  color: #555;
+}
+
+.step-cell {
+  width: 60px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.description-cell {
+  flex: 3; /* Give more space */
+  font-weight: 500;
+}
+
+.reasoning-cell {
+  flex: 4; /* Give most space */
+  font-style: italic;
+  color: #444;
+}
+
+.warning-cell {
+  width: 80px;
+  text-align: center;
+  color: #c62828;
+  flex-shrink: 0;
+}
+
+.action-cell {
+  width: 60px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Highlight rows with warnings */
+.warning-row {
+  background-color: #fff3cd !important;
+}
+
+.log-agent {
+  width: 40%;
+}
+.confidence-score {
+  background-color: #e0f7fa;
+  
+  border-radius: 5px;
+  border: 1px solid #80deea;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.alert-box {
+  background-color: #ffe0e0;
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid #ffcccc;
+}
+
+.escalate-btn {
+  color: #ff5722;
+  border: 2px solid #ff5722;
+  padding: 5px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  height: 35px;
+  background: none;
+  margin-left: 20%;
+}
+
+
+.execution-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  padding-top: 20px;
+  background: #ffffff;
+  height: 55vh;
+  overflow: auto;
+}
+
+
+.tree-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.main-step-wrapper {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.main-step-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 2px;
+  height: 20px;
+  background-color: #ccc;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.sub-steps-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  position: relative;
+  padding-top: 20px;
+}
+
+.sub-steps-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #ccc;
+  margin: 0 auto;
+  width: 80%;
+}
+
+.tree-node {
+  border-radius: 12px;
+  padding: 16px 20px;
+  min-width: 220px;
+  max-width: 300px;
+  text-align: left;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  background-color: white;
+  border: 1px solid #ddd;
+  position: relative;
+}
+.warning-row {
+  background-color: #fff3cd; /* light yellow */
+}
+
+/* .log-table-header, .log-table-row {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+} */
+
+.log-cell {
+  flex: 1;
+}
+
+.tree-node-header {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.tree-step-number {
+  color: #130976;
+}
+
+.main-step {
+  background-color: #D9F0DD;
+  font-weight: bold;
+  border-left: 4px solid #4CAF50;
+}
+
+.sub-step {
+  background-color: #ffffff;
+}
+
+.sub-step::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  width: 2px;
+  height: 20px;
+  background-color: #ccc;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.alert-node {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+}
+
+.alert-box {
+  display: flex;
+  justify-content: center;
+ 
+}
+
+.tree-branches {
+  padding-left: 20px;
+  border-left: 2px dashed #aaa;
+  margin-top: 10px;
+}
+
+.branch-label {
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+/* Execution Path Container */
+.execution-path-container {
+  width: 100%;
+  height: 500px;
+  margin-top: 20px;
+  position: relative;
+  border: 1px solid #ddd; /* Light border around the flow container */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #f9f9f9; /* Light background */
+  padding: 10px;
+}
+
+/* Styling for ReactFlow Nodes */
+.react-flow__node {
+  background: #ffffff; /* White background */
+  border-radius: 8px; /* Rounded corners */
+  padding: 15px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333; /* Dark text for readability */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  border: 2px solid #e4e6f1; /* Light border around the node */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect for ReactFlow Nodes */
+.react-flow__node:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+}
+
+/* Custom label styling for ReactFlow Nodes */
+.react-flow__node .react-flow__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  text-align: center;
+}
+
+/* Styling for Edges (Lines between nodes) */
+.react-flow__edge {
+  stroke-width: 2px; /* Edge line thickness */
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: all 0.3s ease;
+}
+
+/* True Branch Edges */
+.react-flow__edge[data-type="true"] {
+  stroke: #28a745; /* Green for True */
+}
+
+/* False Branch Edges */
+.react-flow__edge[data-type="false"] {
+  stroke: #dc3545; /* Red for False */
+}
+
+/* Edge hover effect (highlight edges on hover) */
+.react-flow__edge:hover {
+  stroke-width: 3px;
+  stroke: #007bff; /* Blue color on hover */
+}
+
+/* MiniMap Styling (Small overview of the flow) */
+.react-flow__minimap {
+  background-color: #f3f3f3;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0; /* Light border for minimap */
+}
+
+/* Controls Styling (Zoom & Pan Controls) */
+.react-flow__controls {
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0; /* Light border for controls */
+  padding: 5px;
+  margin-top: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Background for the Flow (dots for better contrast) */
+.react-flow__background {
+  background-color: #f9f9f9;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* Ensure smooth scaling for small devices */
+@media (max-width: 768px) {
+  .execution-path-container {
+    height: 400px;
+  }
+  .react-flow__node {
+    padding: 10px;
+    font-size: 12px;
+  }
+}

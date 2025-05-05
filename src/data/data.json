@@ -1,0 +1,61 @@
+{
+  "id": "C9988776655",
+  "date": "2024-11-03",
+  "type": "Pharmacy",
+  "result": "Fail",
+  "status": "Denied",
+  "confidenceScore": "63.5%",
+  "alert": "Prescription denied: Drug not on formulary and no prior authorization found. Member or provider must initiate appeal.",
+  "steps": [
+    {
+      "time": "10:02 AM",
+      "title": "Step 1.1",
+      "description": "Confirm member's pharmacy benefit eligibility on claim date"
+    },
+    {
+      "time": "10:03 AM",
+      "title": "Step 1.2",
+      "description": "Identify prescribed drug and NDC code"
+    },
+    {
+      "time": "10:05 AM",
+      "title": "Step 1.3",
+      "description": "Match NDC against plan formulary"
+    },
+    {
+      "time": "10:07 AM",
+      "title": "Step 1.4",
+      "description": "Drug marked as non-formulary: initiate PA lookup"
+    },
+    {
+      "time": "10:08 AM",
+      "title": "Step 2.1",
+      "description": "No active prior authorization found for this medication"
+    },
+    {
+      "time": "10:10 AM",
+      "title": "Step 2.2",
+      "description": "Check for alternative formulary drugs covered under same therapeutic class"
+    },
+    {
+      "time": "10:11 AM",
+      "title": "Step 2.3",
+      "description": "No equivalent alternatives found in claim notes"
+    },
+    {
+      "time": "10:13 AM",
+      "title": "Step 3.1",
+      "description": "Reject claim with denial code 75: 'Prior Authorization Required'"
+    },
+    {
+      "time": "10:14 AM",
+      "title": "Step 3.2",
+      "description": "Generate alert for member and prescriber on required PA process"
+    },
+    {
+      "time": "10:15 AM",
+      "title": "Decision Confidence Score",
+      "description": "63.5%"
+    }
+  ]
+}
