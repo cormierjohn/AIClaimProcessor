@@ -200,7 +200,8 @@ const handleClose = () => {
     
         const claimId = selectedClaimId;
     
-        fetch(`https://xymzogw03g.execute-api.us-east-1.amazonaws.com/dev/graph?ClaimID=${claimId}`)
+        //fetch(`https://xymzogw03g.execute-api.us-east-1.amazonaws.com/dev/graph?ClaimID=${claimId}`)
+        fetch(`https://get-claims-data-910002420677.us-central1.run.app/graph?ClaimID=${claimId}`)
             .then(async (response) => {
                 if (!response.ok) {
                     // Any status that's not 200-299 is treated as an error

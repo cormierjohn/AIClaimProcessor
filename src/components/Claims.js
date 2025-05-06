@@ -30,8 +30,8 @@ import {statusColors} from '../utils/statuscolor.js';
 const { Content } = Layout;
 const { Option } = Select;
 const { TextArea } = Input;
-const API_URL = 'https://xymzogw03g.execute-api.us-east-1.amazonaws.com/dev/getClaimGraph';
-
+//const API_URL = 'https://xymzogw03g.execute-api.us-east-1.amazonaws.com/dev/getClaimGraph';
+const API_URL = 'https://get-claims-data-910002420677.us-central1.run.app/getClaimGraph';
 // Summary card data
 
 
@@ -441,7 +441,9 @@ function Claims() {
         setLoading(true);  // Set loading to true while fetching the details
         try {
             // Construct the URL dynamically using the claimId from the clicked record
-            const response = await fetch(`https://xymzogw03g.execute-api.us-east-1.amazonaws.com/dev/getClaimGraph?ClaimID=${record.claimId}`);
+            //const response = await fetch(`https://xymzogw03g.execute-api.us-east-1.amazonaws.com/dev/getClaimGraph?ClaimID=${record.claimId}`);
+            const response = await fetch(`https://get-claims-data-910002420677.us-central1.run.app/getClaimGraph?ClaimID=${record.claimId}`);
+
 
             const data = await response.json();  // Parse the response to JSON
 
