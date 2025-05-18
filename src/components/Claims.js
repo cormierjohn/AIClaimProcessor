@@ -92,7 +92,7 @@ function Claims() {
     const [claimDetails, setClaimDetails] = useState(null);
     const [apilength, setApiLength] = useState(0);
     const [processedClaimsCount, setProcessedClaimsCount] = useState(0);
-    const [completedClaimsCount, setCompletedClaimsCount] = useState(0);
+    const [queuedClaimsCount, setQueuedClaimsCount] = useState(0);
     const [progressClaimsCount, setProgressClaimsCount] = useState(0);
     const [reviewClaimsCount, setReviewClaimsCount] = useState(0);
     const [filteredData, setFilteredData] = useState([]);  // Filtered data after applying filters
@@ -291,14 +291,14 @@ function Claims() {
                 // Function to count claims by status
                 const countClaimsByStatus = (status) => result.filter((item) => item.ClaimStatus === status).length;
 
-                const processedClaimsCount = countClaimsByStatus("Approved");
-                const completedClaimsCount = countClaimsByStatus("Completed");
-                const inProgressClaimsCount = countClaimsByStatus("In Progress");
-                const inReviewClaimsCount = countClaimsByStatus("Denial Attestation Required");
+                const processedClaimsCount = countClaimsByStatus("Approved");  //Approved Claims
+                const queuedClaimsCount = countClaimsByStatus("Queued for AI Agent"); //Queued Claims
+                const inProgressClaimsCount = countClaimsByStatus("In Progress"); //In Progress Claims
+                const inReviewClaimsCount = countClaimsByStatus("Denial Attestation Required"); //Claims Recommended for Denial Attestation
 
                 // Set counts to state
                 setProcessedClaimsCount(processedClaimsCount);
-                setCompletedClaimsCount(completedClaimsCount);
+                setQueuedClaimsCount(queuedClaimsCount);
                 setProgressClaimsCount(inProgressClaimsCount);
                 setReviewClaimsCount(inReviewClaimsCount);
 
@@ -357,7 +357,7 @@ function Claims() {
         {
             icon: '/logo7.svg',
             label: 'Total Claims in Inventory',
-            value: progressClaimsCount + apilength - reviewClaimsCount + processedClaimsCount + reviewClaimsCount
+            value: apilength
         },
         {
             icon: '/logo10.svg',
@@ -367,7 +367,7 @@ function Claims() {
         {
             icon: '/logo8.svg',
             label: 'Processed Claims​',
-            value: apilength - reviewClaimsCount
+            value: apilength - queuedClaimsCount
         },
         {
             icon: '/logo11.svg',

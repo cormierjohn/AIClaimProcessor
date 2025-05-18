@@ -7,6 +7,14 @@ import dagre from 'dagre';
 import ReactFlow, { MiniMap, Controls, Background, Handle, Position, BaseEdge, EdgeLabelRenderer, getBezierPath } from 'reactflow';
 import 'reactflow/dist/style.css';
 
+const padWithDate = (timestamp) => {
+    if (!timestamp) return null;
+    if (timestamp.includes('T')) return timestamp;
+    if (/^\d{2}:\d{2}:\d{2}$/.test(timestamp)) {
+        return `2000-01-01T${timestamp}`;
+    }
+    return timestamp;
+};
 
 const CustomNode = ({ data }) => {
     return (
@@ -365,26 +373,28 @@ const ClaimDetails = () => {
           <div>Description</div>
           <div>AI Reasoning</div>
         </div>
-        {claimDetails.Steps
-          .sort((a, b) => new Date(a.StepTimestamp) - new Date(b.StepTimestamp))
-          .map((step, index) => (
-            <div key={index} className="log-table-row fade-in">
-              <div className="log-cell time-cell">
-                {step.StepTimestamp ? new Date(step.StepTimestamp).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                }) : '--'}
-              </div>
-              <div className="log-cell">{step.StepDescription || 'No description available.'}</div>
-              <div className="log-cell">
-                {step.AIReasoning ? (
-                  <span className="ai-reasoning">{step.AIReasoning}</span>
-                ) : (
-                  <em>No AI reasoning</em>
-                )}
-              </div>
-            </div>
-          ))}
+          {claimDetails.Steps
+              .sort((a, b) => {
+                  return new Date(padWithDate(a.StepTimestamp)) - new Date(padWithDate(b.StepTimestamp));
+              })
+              .map((step, index) => (
+                  <div key={index} className="log-table-row fade-in">
+                      <div className="log-cell time-cell">
+                          {step.StepTimestamp ? new Date(padWithDate(step.StepTimestamp)).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                          }) : '--'}
+                      </div>
+                      <div className="log-cell">{step.StepDescription || 'No description available.'}</div>
+                      <div className="log-cell">
+                          {step.AIReasoning ? (
+                              <span className="ai-reasoning">{step.AIReasoning}</span>
+                          ) : (
+                              <em>No AI reasoning</em>
+                          )}
+                      </div>
+                  </div>
+              ))}
       </div>
     ) : (
       <div>No logs available.</div>
