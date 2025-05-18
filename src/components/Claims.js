@@ -95,6 +95,9 @@ function Claims() {
     const [queuedClaimsCount, setQueuedClaimsCount] = useState(0);
     const [progressClaimsCount, setProgressClaimsCount] = useState(0);
     const [reviewClaimsCount, setReviewClaimsCount] = useState(0);
+    const [reviewOverturnedClaimsCount, setReviewOverturnedClaimsCount] = useState(0);
+    const [reviewUpheldClaimsCount, setReviewUpheldClaimsCount] = useState(0);
+    const [transferredClaimsCount, setTransferredClaimsCount] = useState(0);
     const [filteredData, setFilteredData] = useState([]);  // Filtered data after applying filters
     const [claimTypes, setClaimTypes] = useState([]);  // Claim Types for dropdown
     const [selectedClaimType, setSelectedClaimType] = useState(null);
@@ -295,12 +298,17 @@ function Claims() {
                 const queuedClaimsCount = countClaimsByStatus("Queued for AI Agent"); //Queued Claims
                 const inProgressClaimsCount = countClaimsByStatus("In Progress"); //In Progress Claims
                 const inReviewClaimsCount = countClaimsByStatus("Denial Attestation Required"); //Claims Recommended for Denial Attestation
-
+                const inReviewOverturnedClaimsCount = countClaimsByStatus("Denial Recommendation Overturned");
+                const inReviewUpheldClaimsCount = countClaimsByStatus("Denial Approved by Adjuster");
+                const inTransferredClaimsCount = countClaimsByStatus("Transferred Back")
                 // Set counts to state
                 setProcessedClaimsCount(processedClaimsCount);
                 setQueuedClaimsCount(queuedClaimsCount);
                 setProgressClaimsCount(inProgressClaimsCount);
                 setReviewClaimsCount(inReviewClaimsCount);
+                setReviewOverturnedClaimsCount(inReviewOverturnedClaimsCount)
+                setReviewUpheldClaimsCount(inReviewUpheldClaimsCount)
+                setTransferredClaimsCount(inTransferredClaimsCount)
 
                 // Transform the data
                 const transformedData = result.map((item) => ({
@@ -356,30 +364,34 @@ function Claims() {
     const summaryData = [
         {
             icon: '/logo7.svg',
-            label: 'Total Claims in Inventory',
-            value: apilength
-        },
-        {
-            icon: '/logo10.svg',
-            label: 'In Progress Claims​',
-            value: progressClaimsCount
+            label: 'Claims in Queue',
+            value: processedClaimsCount
         },
         {
             icon: '/logo8.svg',
-            label: 'Processed Claims​',
+            label: 'Total Claims Processed',
             value: apilength - queuedClaimsCount
         },
         {
             icon: '/logo11.svg',
-            label: 'Approved Claims​',
+            label: 'Approved Claims',
             value: processedClaimsCount
         },
         {
-            icon: '/logo12.svg',
-            label: 'Claims Recommended for Denial Attestation​',
+            icon: '/logo10.svg',
+            label: 'Attestation Complete',
+            value: reviewOverturnedClaimsCount + reviewUpheldClaimsCount
+        },
+        {
+            icon: '/logo10.svg',
+            label: 'Claims Requiring Attestation',
             value: reviewClaimsCount
         },
-
+        {
+            icon: '/logo12.svg',
+            label: 'Claims Transferred Back',
+            value: transferredClaimsCount
+        },
     ];
     const sliderSettings = {
         dots: false,
