@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Modal, Button, Tooltip } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
@@ -6,11 +6,6 @@ import { CloseOutlined } from '@ant-design/icons';
 import dagre from 'dagre';
 import ReactFlow, { MiniMap, Controls, Background, Handle, Position, BaseEdge, EdgeLabelRenderer, getBezierPath } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { EyeOutlined } from '@ant-design/icons';
-import statusColors from '../utils/statuscolor';
-import { ClipLoader } from 'react-spinners'; 
-import Lottie from 'lottie-react';
-import errorAnimation from '../assets/error.json'; // Place your Lottie file here
 
 
 const CustomNode = ({ data }) => {
@@ -123,30 +118,8 @@ const ClaimDetails = () => {
     const location = useLocation();
     const [activeTab, setActiveTab] = useState('log');
     const [isModalVisible, setIsModalVisible] = useState(false); // State to control modal visibility
-    const [modalData, setModalData] = useState(null);
-const [isModalVisibleone, setIsModalVisibleone] = useState(false);
-const [selectedStep, setSelectedStep] = useState(null);
-const [isLoadingExecution, setIsLoadingExecution] = useState(false);
-const [selectedClaimId, setSelectedClaimId] = useState(null);
-const [executionPathData, setExecutionPathData] = useState(null);
-const [isDataEmpty, setIsDataEmpty] = useState(false); 
-const [apiError, setApiError] = useState(false);
-
-
-const openModal = (step) => {
-  setSelectedStep(step);
-  setIsModalVisibleone(true);
-};
-
-const handleClose = () => {
-  setIsModalVisibleone(false);
-  setSelectedStep(null);
-};
-
-
     const { state } = location;
     const claimDetails = state?.data;
-    // setSelectedClaimId(claimDetails.ClaimID);
     console.log(claimDetails);
     const dagreGraph = new dagre.graphlib.Graph();
     dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -177,11 +150,6 @@ const handleClose = () => {
 
         return { nodes, edges };
     };
-    useEffect(() => {
-        if (claimDetails) {
-          setSelectedClaimId(claimDetails.ClaimID);
-        }
-      }, [claimDetails]);
 
     // Function to show the modal
     const showModal = () => {
@@ -192,49 +160,6 @@ const handleClose = () => {
     const hideModal = () => {
         setIsModalVisible(false);
     };
-    const handleExecutionPathClick = () => {
-        setActiveTab('execution');
-        setIsLoadingExecution(true);
-        setIsDataEmpty(false);
-        setApiError(false); // Reset error on each attempt
-    
-        const claimId = selectedClaimId;
-    
-        //fetch(`https://xymzogw03g.execute-api.us-east-1.amazonaws.com/dev/graph?ClaimID=${claimId}`)
-        fetch(`https://get-claims-data-910002420677.us-central1.run.app/graph?ClaimID=${claimId}`)
-            .then(async (response) => {
-                if (!response.ok) {
-                    // Any status that's not 200-299 is treated as an error
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const data = await response.json();
-    
-                if (!data || !data.Steps || data.Steps.length === 0) {
-                    setIsDataEmpty(true);
-                } else {
-                    setExecutionPathData(data);
-                }
-            })
-            .catch((error) => {
-                console.error("Fetch error:", error.message);
-                setApiError(true); // Triggers the Lottie error animation
-            })
-            .finally(() => {
-                setIsLoadingExecution(false);
-            });
-    };
-    
-      
-      const renderNoDataMessage = () => {
-        return (
-          <div style={{ textAlign: 'center', padding: '20px', fontSize: '1.5rem', color: '#555' }}>
-            <ClipLoader size={50} color="#0029F7" loading={isLoadingExecution} />
-            <div style={{ marginTop: '20px' }}>
-              {isDataEmpty ? 'No steps available.' : 'Loading... Please wait.'}
-            </div>
-          </div>
-        );
-      };
 
     const getAIPathSteps = (steps) => {
         const aiPathSteps = new Set();
@@ -336,67 +261,51 @@ const handleClose = () => {
 
 
     const flowElements = useMemo(() => {
-        if (!executionPathData || !executionPathData.Steps) return { nodes: [], edges: [] };
-        const { nodes, edges } = buildGraphData(executionPathData.Steps);
+        if (!claimDetails || !claimDetails.Steps) return { nodes: [], edges: [] };
+        const { nodes, edges } = buildGraphData(claimDetails.Steps);
+        console.log('Edges with Labels:', edges);  // Check if labels are set here
         return getLayoutedElements(nodes, edges, 'TB');
-    }, [executionPathData]);
-    
+
+    }, [claimDetails?.Steps]);
+
 
     const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
     const edgeTypes = useMemo(() => ({ custom: CustomEdge }), []);
 
     const renderExecutionTree = () => {
-        if (isLoadingExecution) {
-          return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '600px' }}>
-              <ClipLoader color="#0029F7" loading={isLoadingExecution} size={50} />
-            </div>
-          );
-        }
-      
-        if (apiError) {
-          return (
-            <div style={{ textAlign: 'center', padding: '20px' }}>
-              <Lottie animationData={errorAnimation} loop={true} style={{ height: 300 }} />
-              <div style={{ fontSize: '1.25rem', color: '#D7263D', marginTop: 20 }}>
-              Oops! The execution data missed its cue. Until it's ready, enjoy this version of the tree.
-              </div>
-            </div>
-          );
-        }
-      
-        if (isDataEmpty) {
-          return (
-            <div style={{ textAlign: 'center', padding: '20px' }}>
-              <div style={{ fontSize: '1.25rem', color: '#666' }}>No steps available.</div>
-            </div>
-          );
-        }
-      
         if (!flowElements.nodes.length) return null;
-      
+
         return (
-          <div style={{ width: '100%', height: '600px' }}>
-            <ReactFlow
-              nodes={flowElements.nodes}
-              edges={flowElements.edges}
-              nodeTypes={nodeTypes}
-              edgeTypes={edgeTypes}
-              fitView
-              style={{
-                border: '1px solid #ddd',
-                borderRadius: '12px',
-                backgroundColor: '#f4f6fb',
-              }}
-            >
-              <MiniMap nodeStrokeColor={() => '#0029F7'} nodeColor={() => '#c8d3ff'} nodeBorderRadius={6} />
-              <Controls />
-              <Background color="#eee" gap={16} variant="dots" />
-            </ReactFlow>
-          </div>
+            <div style={{ width: '100%', height: '600px' }}>
+                <ReactFlow
+                    nodes={flowElements.nodes}
+                    edges={flowElements.edges}
+                    nodeTypes={nodeTypes}
+                    edgeTypes={edgeTypes}  // Make sure this is correctly set
+                    fitView
+                    style={{
+                        border: '1px solid #ddd',
+                        borderRadius: '12px',
+                        backgroundColor: '#f4f6fb',
+                    }}
+                >
+                    <MiniMap
+                        nodeStrokeColor={(n) => '#0029F7'}
+                        nodeColor={(n) => '#c8d3ff'}
+                        nodeBorderRadius={6}
+                    />
+                    <Controls />
+                    <Background
+                        color="#eee"
+                        gap={16}
+                        variant="dots"
+                    />
+                </ReactFlow>
+
+            </div>
         );
-      };
-      
+    };
+
 
     return (
         <div className="claim-details-container">
@@ -424,23 +333,11 @@ const handleClose = () => {
                 <div><strong>Skill Level:</strong><br /> {claimDetails.SkillLevel || 'XXXXXXXXX'}</div>
                 <div><strong>Fallout Reason:</strong><br /> {claimDetails.FalloutReason || 'XXXXXXXXX'}</div>
                 <div> <strong>Status:</strong><br />
-             
-  <div
-    style={{
-      backgroundColor: statusColors[claimDetails.ClaimStatus]?.background || '#eee',
-      color: statusColors[claimDetails.ClaimStatus]?.color || '#333',
-      fontWeight: 600,
-      padding: '4px 12px',
-      borderRadius: '8px',
-      display: 'inline-block',
-      marginTop: '4px'
-    }}
-  >
-    {claimDetails.ClaimStatus || 'Status'}
-  </div>
-</div>
+                <div className={`status-tag ${claimDetails.ClaimStatus?.toLowerCase() || 'default'}`}>
+        {claimDetails.ClaimStatus || 'Status'}
+    </div>
                 </div>
-            
+            </div>
 
             {/* Tabs */}
             <div className="tab-header">
@@ -450,16 +347,12 @@ const handleClose = () => {
                 >
                     Claim Log
                 </button>
-                <button
+                {/* <button
                     className={activeTab === 'execution' ? 'active-tab' : ''}
-                    onClick={() => {
-                        setActiveTab('execution');
-                        handleExecutionPathClick();
-                      }}
-                      
+                    onClick={() => setActiveTab('execution')}
                 >
                     Claim Execution Path
-                </button>
+                </button> */}
             </div>
 
             {/* Tab Content */}
@@ -467,61 +360,31 @@ const handleClose = () => {
   <div className="log-steps-table">
     {claimDetails.Steps?.length ? (
       <div className="log-table">
-       <div className="log-table-header">
-  <div className="log-cell time-cell">Log Time</div>
-  <div className="log-cell step-cell">Step #</div>
-  <div className="log-cell description-cell">Step Description</div>
-  <div className="log-cell description-cell">Agent Name</div>
-  <div className="log-cell description-cell">Knowledge Source</div>
-  <div className="log-cell reasoning-cell">AI Reasoning</div>
-  <div className="log-cell warning-cell">Warning</div>
-  
-</div>
-
-{claimDetails.Steps
-  .sort((a, b) => new Date(a.StepTimestamp) - new Date(b.StepTimestamp))
-  .map((step, index) => (
-    <div
-      key={index}
-      className={`log-table-row fade-in ${step.StepWarningFlag === 'Y' ? 'warning-row' : ''}`}
-    >
-      <div className="log-cell time-cell">
-        {step.StepTimestamp
-          ? new Date(step.StepTimestamp).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-          : '--'}
-      </div>
-      <div className="log-cell step-cell">{step.StepId}</div>
-      <div className="log-cell description-cell">
-        {step.StepDescription || 'No description available.'}
-      </div>
-      <div className="log-cell description-cell">
-        {claimDetails.AgentName || 'No Agent available.'}
-      </div>
-      <div className="log-cell description-cell">
-        {claimDetails.KnowledgeSource || 'No Knowledge Source available.'}
-      </div>
-      <div className="log-cell reasoning-cell">
-        {step.AIReasoning ? (
-          <span className="ai-reasoning">{step.AIReasoning}</span>
-        ) : (
-          <em>No AI reasoning</em>
-        )}
-      </div>
-      <div className="log-cell warning-cell">
-  {step.StepWarningFlag === 'Y' ? (
-    <span style={{ fontSize: '36px' }}>⚠️</span> // Adjust size here as needed
-  ) : ''}
-</div>
-
-     
-    </div>
-  ))}
-
-
-
+        <div className="log-table-header">
+          <div>Time</div>
+          <div>Description</div>
+          <div>AI Reasoning</div>
+        </div>
+        {claimDetails.Steps
+          .sort((a, b) => new Date(a.StepTimestamp) - new Date(b.StepTimestamp))
+          .map((step, index) => (
+            <div key={index} className="log-table-row fade-in">
+              <div className="log-cell time-cell">
+                {step.StepTimestamp ? new Date(step.StepTimestamp).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                }) : '--'}
+              </div>
+              <div className="log-cell">{step.StepDescription || 'No description available.'}</div>
+              <div className="log-cell">
+                {step.AIReasoning ? (
+                  <span className="ai-reasoning">{step.AIReasoning}</span>
+                ) : (
+                  <em>No AI reasoning</em>
+                )}
+              </div>
+            </div>
+          ))}
       </div>
     ) : (
       <div>No logs available.</div>
@@ -623,25 +486,6 @@ const handleClose = () => {
                     </div>
                 </div>
             </Modal>
-            <Modal
-  title="Step Details"
-  open={isModalVisible}
-  onCancel={handleClose}
-  footer={null}
->
-  {selectedStep && (
-    <div>
-      <p><strong>Time:</strong> {new Date(selectedStep.StepTimestamp).toLocaleString()}</p>
-      <p><strong>Description:</strong> {selectedStep.StepDescription}</p>
-      <p><strong>AI Reasoning:</strong></p>
-      <p>{selectedStep.AIReasoning}</p>
-      {selectedStep.StepWarningFlag === 'Y' && (
-        <p style={{ color: 'red' }}><strong>⚠️ Warning Flag is Set</strong></p>
-      )}
-    </div>
-  )}
-</Modal>
-
         </div>
     );
 };
