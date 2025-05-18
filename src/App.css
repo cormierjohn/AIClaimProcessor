@@ -174,12 +174,12 @@
 .log-table-row {
   display: grid;
   gap: 10px; /* Optional: space between the columns */
-  align-items: center;
+  align-items: start;
   background-color: #f9f9f9;
   border-radius: 8px;
   padding: 12px;
   transition: transform 0.3s ease, background-color 0.3s ease;
-  grid-template-columns: 1fr 1fr 5fr 2fr 1fr 5fr 1fr !important; 
+  grid-template-columns: 120px 1fr 1fr 1fr 2fr 2fr !important;
 }
 
 .log-table-header {

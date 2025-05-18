@@ -371,14 +371,20 @@ const ClaimDetails = () => {
         <div className="log-table-header">
           <div>Time</div>
           <div>Description</div>
+          <div>Agent Name</div>
+          <div>Knowledge Source</div>
           <div>AI Reasoning</div>
+          <div>Logical Reasoning</div>
         </div>
           {claimDetails.Steps
               .sort((a, b) => {
                   return new Date(padWithDate(a.StepTimestamp)) - new Date(padWithDate(b.StepTimestamp));
               })
               .map((step, index) => (
-                  <div key={index} className="log-table-row fade-in">
+                  <div
+                      key={index}
+                      className="log-table-row fade-in"
+                  >
                       <div className="log-cell time-cell">
                           {step.StepTimestamp ? new Date(padWithDate(step.StepTimestamp)).toLocaleTimeString([], {
                               hour: '2-digit',
@@ -386,6 +392,8 @@ const ClaimDetails = () => {
                           }) : '--'}
                       </div>
                       <div className="log-cell">{step.StepDescription || 'No description available.'}</div>
+                      <div className="log-cell">{claimDetails.AgentName || 'No agent name available.'}</div>
+                      <div className="log-cell">{step.KnowledgeSource || 'Not available.'}</div>
                       <div className="log-cell">
                           {step.AIReasoning ? (
                               <span className="ai-reasoning">{step.AIReasoning}</span>
@@ -393,15 +401,21 @@ const ClaimDetails = () => {
                               <em>No AI reasoning</em>
                           )}
                       </div>
+                      <div className="log-cell">
+                          {step.LogicalReasoning ? (
+                              <span className="ai-reasoning">{step.LogicalReasoning}</span>
+                          ) : (
+                              <em>No Logical Reasoning reasoning</em>
+                          )}
+                      </div>
                   </div>
               ))}
       </div>
     ) : (
-      <div>No logs available.</div>
+        <div>No logs available.</div>
     )}
   </div>
-)}
-
+            )}
 
 
             {activeTab === 'execution' && renderExecutionTree()}
@@ -411,7 +425,7 @@ const ClaimDetails = () => {
                 visible={isModalVisible}
                 onCancel={hideModal}
                 footer={null} // No footer with default buttons
-                closeIcon={<CloseOutlined />} // Custom close icon
+                closeIcon={<CloseOutlined/>} // Custom close icon
                 centered
                 width={600} // Modal width
             >
