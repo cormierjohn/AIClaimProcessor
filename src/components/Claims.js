@@ -299,7 +299,7 @@ function Claims() {
                 const inProgressClaimsCount = countClaimsByStatus("In Progress"); //In Progress Claims
                 const inReviewClaimsCount = countClaimsByStatus("Denial Attestation Required"); //Claims Recommended for Denial Attestation
                 const inReviewOverturnedClaimsCount = countClaimsByStatus("Denial Recommendation Overturned");
-                const inReviewUpheldClaimsCount = countClaimsByStatus("Denial Approved by Adjuster");
+                const inReviewUpheldClaimsCount = countClaimsByStatus("Denial Recommendation Approved");
                 const inTransferredClaimsCount = countClaimsByStatus("Transferred Back")
                 // Set counts to state
                 setProcessedClaimsCount(processedClaimsCount);
@@ -806,7 +806,7 @@ function Claims() {
                   
                       try {
                         // API call to update claim status
-                        const response = await fetch('https://xymzogw03g.execute-api.us-east-1.amazonaws.com/dev/claimupdate', {
+                        const response = await fetch('https://get-claims-data-910002420677.us-central1.run.app/claimupdate', {
                           method: 'PUT',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify(payload),
@@ -864,10 +864,8 @@ function Claims() {
                             onChange={(value) => setManualDetermination(value)}
                         >
 
-                            <Option value="Denial Approved by Adjuster">Denial Approved by Adjuster</Option>
-                            <Option value="Denial Overturned by Adjuster">Denial Overturned by Adjuster</Option>
-                            <Option value="Denial Transferred by Adjuster">Denial Transferred by Adjuster</Option>
-
+                            <Option value="Denial Recommendation Approved">Denial Recommendation Approved</Option>
+                            <Option value="Denial Recommendation Overturned">Denial Recommendation Overturned</Option>
 
                         </Select>
                     </div>
