@@ -387,7 +387,7 @@ function Claims() {
                 const processedClaimsCount = countClaimsByStatus("Approved");
                 const completedClaimsCount = countClaimsByStatus("Completed");
                 const inProgressClaimsCount = countClaimsByStatus("In Progress");
-                const queuedClaimsCount = countClaimsByStatus("Queued for AI Agent"); //Queued Claims
+                const inQueuedClaimsCount = countClaimsByStatus("Queued for AI Agent"); //Queued Claims
                 const inReviewClaimsCount = countClaimsByStatus("Denial Attestation Required");
                 const inReviewOverturnedClaimsCount = countClaimsByStatus("Denial Recommendation Overturned");
                 const inReviewUpheldClaimsCount = countClaimsByStatus("Denial Recommendation Approved");
@@ -399,6 +399,7 @@ function Claims() {
                 setCompletedClaimsCount(completedClaimsCount);
                 setProgressClaimsCount(inProgressClaimsCount);
                 setReviewClaimsCount(inReviewClaimsCount);
+                setQueuedClaimsCount(inQueuedClaimsCount);
                 setReviewOverturnedClaimsCount(inReviewOverturnedClaimsCount)
                 setReviewUpheldClaimsCount(inReviewUpheldClaimsCount)
                 setTransferredBackCount(transferredBackCount);
@@ -462,12 +463,12 @@ function Claims() {
         {
             icon: '/logo7.svg',
             label: 'Claims in Queue',
-            value: processedClaimsCount
+            value: queuedClaimsCount
         },
         {
             icon: '/logo8.svg',
             label: 'Total Claims Processed',
-            value: 5
+            value: apilength - queuedClaimsCount
         },
         {
             icon: '/logo11.svg',
