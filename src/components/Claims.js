@@ -175,15 +175,23 @@ function Claims() {
             title: 'Claim Received Date',
             dataIndex: 'dueDate',
             key: 'dueDate',
-            render: (text) => <span>{new Date(text).toLocaleDateString()}</span>,
+            render: (text) => {
+                if (!text || typeof text !== 'string') return <span>—</span>;  // graceful fallback
+                const parsedDate = new Date(text.replace(' ', 'T'));
+                return <span>{isNaN(parsedDate) ? 'Invalid Date' : parsedDate.toLocaleDateString()}</span>;
+            },
             sorter: (a, b) => new Date(a.dueDate) - new Date(b.dueDate),
         },
         {
             title: 'Claim Processed Date',
-            dataIndex: 'dueDate',
-            key: 'dueDate',
-            render: (text) => <span>{new Date(text).toLocaleDateString()}</span>,
-            sorter: (a, b) => new Date(a.dueDate) - new Date(b.dueDate),
+            dataIndex: 'processedDate',
+            key: 'processedDate',
+            render: (text) => {
+                if (!text || typeof text !== 'string') return <span>—</span>;  // graceful fallback
+                const parsedDate = new Date(text.replace(' ', 'T'));
+                return <span>{isNaN(parsedDate) ? 'Invalid Date' : parsedDate.toLocaleDateString()}</span>;
+            },
+            sorter: (a, b) => new Date(a.processedDate) - new Date(b.processedDate),
         },
         {
             title: 'Claim Type',
@@ -409,6 +417,7 @@ function Claims() {
                 const transformedData = result.map((item) => ({
                     claimId: item.ClaimID,
                     dueDate: item.ClaimReceivedDate,
+                    processedDate: item.ClaimProcessedDate,
                     claimType: item.ClaimType || 'N/A',
                     skill: item.SkillLevel || 'N/A',
                     fallouttype: item.FalloutReason || 'N/A',

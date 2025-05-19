@@ -536,14 +536,11 @@ const ClaimDetails = () => {
                       )}
                     </div>
                     <div className="log-cell reasoning-cell">
-                      {step.AIReasoning ? (
-                        // Provide generalized reasoning
-                        <span>
-                          {generateLogicalReasoning(step.AIReasoning, step)}
-                        </span>
-                      ) : (
-                        <em>No AI reasoning available.</em>
-                      )}
+                        {step.LogicalReasoning ? (
+                            <span className="ai-reasoning">{step.LogicalReasoning}</span>
+                        ) : (
+                            <em>No AI reasoning</em>
+                        )}
                     </div>
                     <div className="log-cell warning-cell">
                       {step.StepWarningFlag === 'Y' ? (
