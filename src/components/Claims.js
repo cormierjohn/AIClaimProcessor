@@ -12,7 +12,8 @@ import {
     InputNumber,
     Spin,
     Modal,
-    Input
+    Input,
+    Checkbox
 } from 'antd';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -22,8 +23,9 @@ import {
 } from '@ant-design/icons';
 
 import Slider from "react-slick";
-import { EditOutlined } from '@ant-design/icons';
+import { EyeOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
+import { statusColors } from '../utils/statuscolor.js';
 
 
 const { Content } = Layout;
@@ -93,11 +95,13 @@ function Claims() {
     const [apilength, setApiLength] = useState(0);
     const [processedClaimsCount, setProcessedClaimsCount] = useState(0);
     const [queuedClaimsCount, setQueuedClaimsCount] = useState(0);
+    const [completedClaimsCount, setCompletedClaimsCount] = useState(0);
     const [progressClaimsCount, setProgressClaimsCount] = useState(0);
     const [reviewClaimsCount, setReviewClaimsCount] = useState(0);
     const [reviewOverturnedClaimsCount, setReviewOverturnedClaimsCount] = useState(0);
     const [reviewUpheldClaimsCount, setReviewUpheldClaimsCount] = useState(0);
-    const [transferredClaimsCount, setTransferredClaimsCount] = useState(0);
+    const [denialRecomendationsCount, setDenialRecommendationsCount] = useState(0);
+    const [transferredBackCount, setTransferredBackCount] = useState(0);
     const [filteredData, setFilteredData] = useState([]);  // Filtered data after applying filters
     const [claimTypes, setClaimTypes] = useState([]);  // Claim Types for dropdown
     const [selectedClaimType, setSelectedClaimType] = useState(null);
@@ -111,6 +115,9 @@ function Claims() {
     const [selectedFalloutReason, setSelectedFalloutReason] = useState(null);
     const [claimList, setClaimList] = useState([]);
     const [initialClaimList, setInitialClaimList] = useState([]);
+    const [transferClaimList, settransferClaimList] = useState([]);
+    const [showTransferredStatus, setShowTransferredStatus] = useState(false);
+
 
 
 
@@ -120,11 +127,10 @@ function Claims() {
         "Denial Attestation Required": { background: '#FFF1F0', color: '#FF4D4F', dot: '#FF4D4F' },
         "Transferred Back": { background: '#FFB74D', color: '#FFFFFF', dot: '#FB8C00' },  //add color which matcheds the transferred back warning kind of alert
         "Approved": { background: '#E6FFFB', color: '#13C2C2', dot: '#13C2C2' },
-        "Denial Approved by Adjuster": { background: '#FFF1F0', color: '#FF4D4F', dot: '#FF4D4F' },
-        "Denial Overturned by Adjuster": { background: '#FFF1F0', color: '#FF4D4F', dot: '#FF4D4F' },
-        "Denial Transferred by Adjuster": { background: '#FFF1F0', color: '#FF4D4F', dot: '#FF4D4F' },
-      
+        "Denial Recommendation Overturned": { background: '#fff633', color: '#FF4D4F', dot: '#FF4D4F' },
+
     };
+
     const predefinedClaimTypes = ['Proclaim Skill 1',
         'Proclaim CBH S1',
         'Proclaim Lifesource',
@@ -140,7 +146,6 @@ function Claims() {
     ];
 
     const falloutreasons = ['Duplicate Claim', 'Assignment of Benefits to Network Provider', 'DME Rental to Purchase', 'Possible Infertility', 'Possible Duplicate Claims', 'Void, Replacement, or Corrected Claims', 'Authorization Matching', 'Autism (ABA) Therapy Bypass', 'UM Notes Exist WMWM 0040', 'UM Excess Units WMWM 0055', 'Unlisted Procedure Review', 'COB Examiner Error', 'COB Medicare Investigation Needed', 'Medicare Primary Coordination', 'CXT History Edit Bypass', 'Claims Examiner Error', 'Errors Manual Price', 'Multiple Vision Exam Services', 'Large Dollar Claims', 'IFP OON Provider Review Bypass'];
-
     const skilllevel = ['Skill 1', 'Skill 1+2+3', 'Skill 2', 'Skill 3', 'Skill 2+3']
 
 
@@ -168,103 +173,187 @@ function Claims() {
         },
         {
             title: 'Claim Received Date',
-            dataIndex: 'dueDate',  // <- Corrected this line
+            dataIndex: 'dueDate',
             key: 'dueDate',
+            render: (text) => <span>{new Date(text).toLocaleDateString()}</span>,
+            sorter: (a, b) => new Date(a.dueDate) - new Date(b.dueDate),
+        },
+        {
+            title: 'Claim Processed Date',
+            dataIndex: 'dueDate',
+            key: 'dueDate',
+            render: (text) => <span>{new Date(text).toLocaleDateString()}</span>,
+            sorter: (a, b) => new Date(a.dueDate) - new Date(b.dueDate),
         },
         {
             title: 'Claim Type',
             dataIndex: 'claimType',
             key: 'claimType',
+            sorter: (a, b) => a.claimType.localeCompare(b.claimType),
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Search Claim Type"
+                        value={selectedKeys[0]}
+                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={() => confirm()}
+                        style={{ marginBottom: 8, display: 'block' }}
+                    />
+                    <Button onClick={() => confirm()} type="primary" size="small" style={{ width: 90, marginRight: 8 }}>
+                        Search
+                    </Button>
+                    <Button onClick={() => clearFilters()} size="small" style={{ width: 90 }}>
+                        Reset
+                    </Button>
+                </div>
+            ),
+            onFilter: (value, record) => record.claimType.toLowerCase().includes(value.toLowerCase()),
         },
         {
-            title: 'Skill Level',
+            title: 'Skill',
             dataIndex: 'skill',
             key: 'skill',
+            sorter: (a, b) => a.skill.localeCompare(b.skill),
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Search Skill"
+                        value={selectedKeys[0]}
+                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={confirm}
+                        style={{ marginBottom: 8, display: 'block' }}
+                    />
+                    <Button onClick={confirm} type="primary" size="small" style={{ width: 90, marginRight: 8 }}>
+                        Search
+                    </Button>
+                    <Button onClick={clearFilters} size="small" style={{ width: 90 }}>
+                        Reset
+                    </Button>
+                </div>
+            ),
+            onFilter: (value, record) => record.skill?.toLowerCase().includes(value.toLowerCase()),
         },
         {
             title: 'Fallout Reason',
             dataIndex: 'fallouttype',
             key: 'fallouttype',
+            sorter: (a, b) => a.fallouttype.localeCompare(b.fallouttype),
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Search Fallout Reason"
+                        value={selectedKeys[0]}
+                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={confirm}
+                        style={{ marginBottom: 8, display: 'block' }}
+                    />
+                    <Button onClick={confirm} type="primary" size="small" style={{ width: 90, marginRight: 8 }}>
+                        Search
+                    </Button>
+                    <Button onClick={clearFilters} size="small" style={{ width: 90 }}>
+                        Reset
+                    </Button>
+                </div>
+            ),
+            onFilter: (value, record) => record.fallouttype?.toLowerCase().includes(value.toLowerCase()),
         },
         {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
             render: (status, record) => {
-                // Log the status and record to verify data
-                console.log("Rendering status:", status, "for record:", record);
-
-                // Define the status colors
-                const currentStatus = statusColors[status] || { background: '#f0f0f0', color: '#000', dot: '#000' };
-
-                // Adjust the condition to check for more statuses
-                const showEdit = ['denial recommended', 'denial attestation required', 'denial approved', 'denial overturned'].includes(status?.toLowerCase());
-                const isDenial = status?.toLowerCase() === 'denial attestation required';
-
-                // Log if showEdit and isDenial are being set properly
-                console.log("showEdit:", showEdit, "isDenial:", isDenial);
-
-                const content = (
+              const currentStatus = statusColors[status] || { background: '#f0f0f0', color: '#000', dot: '#000' };
+              const showEdit = ['denial recommended', 'denial attestation required', 'denial approved', 'denial overturned'].includes(status?.toLowerCase());
+              const isTransferredClaimCompanion = record.transferclaim?.toUpperCase() === 'Y';
+          
+              return (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    backgroundColor: currentStatus.background,
+                    color: currentStatus.color,
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    fontWeight: 500,
+                    fontSize: '14px',
+                    gap: '6px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: currentStatus.dot,
+                        borderRadius: '50%',
+                        marginRight: '8px',
+                      }}
+                    />
+                    {status}
+          
+                    {!record.hasAttestation && showEdit && (
+                      <EyeOutlined
                         style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            backgroundColor: currentStatus.background,
-                            color: currentStatus.color,
-                            padding: '4px 12px',
-                            borderRadius: '20px',
-                            fontWeight: 500,
-                            fontSize: '14px',
-                            position: 'relative',
-                            gap: '6px',
+                          color: '#0029F7',
+                          fontSize: '14px',
+                          marginLeft: '6px',
+                          cursor: 'pointer',
                         }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setModalRecord(record);
+                          setSummary(record.summary || '');
+                          setManualDetermination(record.status || 'Default Option');
+                          setNotes('');
+                          setIsModalOpen(true);
+                          setShowTransferredStatus(record.transferclaim);
+                        }}
+                      />
+                    )}
+                  </div>
+          
+                  {!record.hasAttestation && showEdit && (
+                    <span
+                      style={{
+                        marginLeft: 16,
+                        color: '#000',
+                        fontStyle: 'italic',
+                      }}
                     >
-                        <div
-                            style={{
-                                width: '8px',
-                                height: '8px',
-                                backgroundColor: currentStatus.dot,
-                                borderRadius: '50%',
-                                marginRight: '8px',
-                            }}
-                        />
-                        {status}
-                        {/* Log when the Edit button is rendered */}
-                        {!record.hasAttestation && showEdit && (
-                            <EditOutlined
-                                style={{
-                                    color: '#0029F7',
-                                    fontSize: '14px',
-                                    marginLeft: '6px',
-                                    cursor: 'pointer',
-                                }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    console.log("Edit button clicked for record:", record);  // Log the record clicked
-                                    setModalRecord(record); // Store the record for modal
-                                    setSummary(record.summary || ''); // Set summary for the modal
-                                    setManualDetermination(record.status || 'Default Option'); // Set manual determination value
-                                    setNotes(''); // Clear any existing notes
-                                    setIsModalOpen(true); // Open the modal
-                                }}
-                            />
-                        )}
-                    </div>
-                );
-
-                // Log if Tooltip is applied for denial status
-                console.log("isDenial Tooltip:", isDenial);
-
-                return isDenial ? (
-                    <Tooltip title={record.summary || 'Summary not available'} placement="left">
-                        {content}
-                    </Tooltip>
-                ) : (
-                    content
-                );
+                      {isTransferredClaimCompanion
+                        ? 'Transferred to Claim Companion'
+                        : 'Awaiting Transfer to Claims Companion'}
+                    </span>
+                  )}
+                </div>
+              );
             },
+          
             sorter: (a, b) => a.status.localeCompare(b.status),
-        }
+          
+            // 🔍 Added filter
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+              <div style={{ padding: 8 }}>
+                <Input
+                  placeholder="Search Status"
+                  value={selectedKeys[0]}
+                  onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                  onPressEnter={confirm}
+                  style={{ marginBottom: 8, display: 'block' }}
+                />
+                <Button onClick={confirm} type="primary" size="small" style={{ width: 90, marginRight: 8 }}>
+                  Search
+                </Button>
+                <Button onClick={clearFilters} size="small" style={{ width: 90 }}>
+                  Reset
+                </Button>
+              </div>
+            ),
+            onFilter: (value, record) => record.status?.toLowerCase().includes(value.toLowerCase()),
+          }
+          
 
     ];
 
@@ -276,6 +365,7 @@ function Claims() {
                 dataIndex: 'attestationDate',
                 key: 'attestationDate',
                 render: (date) => <span>{date}</span>,
+                sorter: (a, b) => new Date(a.attestationDate) - new Date(b.attestationDate),
             },
         ]
         : columns;
@@ -287,28 +377,32 @@ function Claims() {
             try {
                 const response = await fetch(API_URL);
                 const result = await response.json();
-                console.log(result.length); // Log the number of records
+                console.log(result); // Log the number of records
 
                 setApiLength(result.length);
 
                 // Function to count claims by status
                 const countClaimsByStatus = (status) => result.filter((item) => item.ClaimStatus === status).length;
 
-                const processedClaimsCount = countClaimsByStatus("Approved");  //Approved Claims
+                const processedClaimsCount = countClaimsByStatus("Approved");
+                const completedClaimsCount = countClaimsByStatus("Completed");
+                const inProgressClaimsCount = countClaimsByStatus("In Progress");
                 const queuedClaimsCount = countClaimsByStatus("Queued for AI Agent"); //Queued Claims
-                const inProgressClaimsCount = countClaimsByStatus("In Progress"); //In Progress Claims
-                const inReviewClaimsCount = countClaimsByStatus("Denial Attestation Required"); //Claims Recommended for Denial Attestation
+                const inReviewClaimsCount = countClaimsByStatus("Denial Attestation Required");
                 const inReviewOverturnedClaimsCount = countClaimsByStatus("Denial Recommendation Overturned");
                 const inReviewUpheldClaimsCount = countClaimsByStatus("Denial Recommendation Approved");
-                const inTransferredClaimsCount = countClaimsByStatus("Transferred Back")
+                const denialRecommendationsCount = countClaimsByStatus("Denial Recommendation Overturned");
+                const transferredBackCount = countClaimsByStatus("Transferred Back");
+
                 // Set counts to state
                 setProcessedClaimsCount(processedClaimsCount);
-                setQueuedClaimsCount(queuedClaimsCount);
+                setCompletedClaimsCount(completedClaimsCount);
                 setProgressClaimsCount(inProgressClaimsCount);
                 setReviewClaimsCount(inReviewClaimsCount);
                 setReviewOverturnedClaimsCount(inReviewOverturnedClaimsCount)
                 setReviewUpheldClaimsCount(inReviewUpheldClaimsCount)
-                setTransferredClaimsCount(inTransferredClaimsCount)
+                setTransferredBackCount(transferredBackCount);
+                setDenialRecommendationsCount(denialRecommendationsCount)
 
                 // Transform the data
                 const transformedData = result.map((item) => ({
@@ -317,8 +411,11 @@ function Claims() {
                     claimType: item.ClaimType || 'N/A',
                     skill: item.SkillLevel || 'N/A',
                     fallouttype: item.FalloutReason || 'N/A',
+                    transferclaim: item.TransferredClaimCompanionStatus || 'N/A',
                     status: item.ClaimStatus,
-                    summary: item.Steps?.map(step => step.AIReasoning).join('\n\n') || 'No summary available',
+                    agentName: item.AgentName || 'N/A',
+                    knowledgesource: item.KnowledgeSource || 'N/A',
+                    summary: item.Summary || 'N/A',
                     steps: item.Steps || [],
                 }));
 
@@ -328,7 +425,7 @@ function Claims() {
                 setData(transformedData);
                 setFilteredData(transformedData);
                 setClaimList(transformedData);
-                setInitialClaimList(transformedData); 
+                setInitialClaimList(transformedData);
 
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -342,7 +439,7 @@ function Claims() {
 
     const applyFilters = () => {
         console.log("Applying Filters:", selectedClaimType, selectedStatus, selectedSkill, selectedFalloutReason);
-    
+
         const filteredClaims = claimList.filter(item => {
             return (
                 (selectedClaimType ? item.claimType === selectedClaimType : true) &&
@@ -351,11 +448,11 @@ function Claims() {
                 (selectedFalloutReason ? item.fallouttype === selectedFalloutReason : true)
             );
         });
-    
+
         // Directly update claimList with filtered data
         setClaimList(filteredClaims);
     };
-    
+
     // useEffect(() => {
     //     applyFilters();
     // }, [selectedClaimType, selectedStatus, selectedSkill, selectedFalloutReason]);
@@ -370,7 +467,7 @@ function Claims() {
         {
             icon: '/logo8.svg',
             label: 'Total Claims Processed',
-            value: apilength - queuedClaimsCount
+            value: 5
         },
         {
             icon: '/logo11.svg',
@@ -390,7 +487,7 @@ function Claims() {
         {
             icon: '/logo12.svg',
             label: 'Claims Transferred Back',
-            value: transferredClaimsCount
+            value: transferredBackCount
         },
     ];
     const sliderSettings = {
@@ -443,33 +540,6 @@ function Claims() {
         }
     };
 
-    // const applyFilters = () => {
-    //     console.log("Selected Filters:", selectedClaimType, selectedStatus, selectedSkill, selectedFalloutReason);
-
-    //     const filtered = data.filter(item => {
-    //         console.log("Checking item:", {
-    //             claimType: item.ClaimType,
-    //             status: item.ClaimStatus,
-    //             skill: item.SkillLevel,
-    //             falloutReason: item.FalloutReason,
-    //         });
-
-    //         // Match the ClaimType, ClaimStatus, and SkillLevel based on selected filters
-    //         const matchClaimType = selectedClaimType ? item.ClaimType === selectedClaimType : true;
-    //         const matchStatus = selectedStatus ? item.ClaimStatus === selectedStatus : true;
-    //         const matchSkill = selectedSkill ? item.SkillLevel === selectedSkill : true;
-
-    //         // Handle FalloutReason filtering with case-insensitive partial matching (if applicable)
-    //         const matchFallout = selectedFalloutReason 
-    //             ? item.FalloutReason && item.FalloutReason.toLowerCase().includes(selectedFalloutReason.toLowerCase())
-    //             : true;
-
-    //         return matchClaimType && matchStatus && matchSkill && matchFallout;
-    //     });
-
-    //     console.log("Filtered Data:", filtered);
-    //     setFilteredData(filtered);
-    // };
 
     const resetFilters = () => {
         setSelectedClaimType(null);
@@ -479,9 +549,7 @@ function Claims() {
         setClaimList(initialClaimList); // Reset the filtered data to the original data
     };
 
-    // if (loading) {
-    //     return <div>Loading...</div>;
-    // }
+
 
     return (
         <Spin spinning={loading} tip="Loading..." size="large">
@@ -505,6 +573,8 @@ function Claims() {
                         marginBottom: 40,
                         position: 'relative',
                         padding: '0 40px',  // Add padding to prevent arrow clipping
+                        maxWidth: "98%",
+                        margin: "0 auto"
                     }}>
                         <Slider {...sliderSettings}>
                             {summaryData.map((item, index) => (
@@ -574,7 +644,7 @@ function Claims() {
                     {/* Claim Inventory Section - Now properly aligned with table */}
                     <Row gutter={16}>
                         {/* Main Content Column - 80% width */}
-                        <Col xs={24} xl={20} xxl={19.5}> {/* Slightly less than 20 to account for gutter */}
+                        <Col span={24}> {/* Slightly less than 20 to account for gutter */}
                             {/* Header Row */}
                             <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
                                 <Col>
@@ -613,7 +683,7 @@ function Claims() {
                                     },
                                 })}
                                 pagination={{
-                                    pageSize: 4,
+                                    pageSize: 8,
                                     showSizeChanger: false,
                                     showQuickJumper: false,
                                     position: ['bottomRight'],
@@ -625,227 +695,14 @@ function Claims() {
 
                         </Col>
 
-                        {/* Sidebar Column - 20% width */}
-                        <Col
-                            xs={24}
-                            xl={4}
-                            xxl={4.5}
-                            style={{
-                                padding: 0,            // Remove horizontal padding
-                                margin: 0              // Remove any default margin from the grid
-                            }}
-                        >
-                            <Card
-                                title={
-                                    <span
-                                        style={{
-                                            fontFamily: 'Inter',
-                                            fontWeight: 700,
-                                            fontSize: 25,
-                                            lineHeight: '100%',
-                                            color: '#130976'
-                                        }}
-                                    >
-                                        Filters
-                                    </span>
-                                }
-                                headStyle={{
-                                    borderBottom: 'none',
-                                    padding: 0,
-                                    paddingBottom: 0, // Optional: some spacing under the header
-                                }}
-                                style={{
-                                    marginTop: 55,        // Remove top spacing
-                                    width: '100%',
-                                    maxWidth: '100%',    // Make it fluid inside the Col
-                                    marginLeft: 0,       // Avoid auto alignment
-                                    padding: 16          // Optional: internal padding inside the card
-                                }}
-                                bodyStyle={{
-                                    padding: 0,          // Optional: adjust to your spacing needs
-                                }}
-                            >
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                                    {/* <Row>
-                                        <Col span={24}>
-                                            <div style={{ fontWeight: 600, color: '#130976', marginBottom: 0 }}>
-                                                Time range (hours)
-                                            </div>
-
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                                <AntSlider
-                                                    min={1}
-                                                    max={168}
-                                                    onChange={value => setHours(value)}
-                                                    value={typeof hours === 'number' ? hours : 0}
-                                                    style={{ flex: 1 }}
-                                                    className="custom-slider"
-                                                />
-                                                <InputNumber
-                                                    min={1}
-                                                    max={168}
-                                                    value={hours}
-                                                    onChange={value => setHours(value)}
-                                                    style={{
-                                                        width: 64,
-                                                        height: 64,
-                                                        lineHeight: '64px',
-                                                        textAlign: 'center',
-                                                        fontSize: 18,
-                                                        fontWeight: 500,
-                                                        borderRadius: 8
-                                                    }}
-                                                />
-                                            </div>
-                                        </Col>
-                                    </Row> */}
-
-                                    <Select
-                                        placeholder="Claim Type"
-                                        style={{ height: 64 }}
-                                        dropdownStyle={{ minWidth: 200 }}
-                                        value={selectedClaimType}
-                                        onChange={value => setSelectedClaimType(value)}
-                                    >
-                                        {predefinedClaimTypes.map((type, index) => (
-                                            <Option key={index} value={type}>{type}</Option>
-                                        ))}
-                                    </Select>
-
-                                    <Select
-                                        placeholder="Status"
-                                        style={{ height: 64 }}
-                                        dropdownStyle={{ minWidth: 200 }}
-                                        onChange={value => setSelectedStatus(value)} // Store selected Status
-                                    >
-                                        {statuses.map((status, index) => (
-                                            <Option key={index} value={status}>{status}</Option>
-                                        ))}
-                                    </Select>
-                                    <Select
-                                        placeholder="Skill"
-                                        style={{ height: 64 }}
-                                        dropdownStyle={{ minWidth: 200 }}
-                                        value={selectedSkill}
-                                        onChange={value => setSelectedSkill(value)}
-                                    >
-                                        {skilllevel.map((status, index) => (
-                                            <Option key={index} value={status}>{status}</Option>
-                                        ))}
-                                    </Select>
-
-                                    <Select
-                                        placeholder="Fallout Reason"
-                                        style={{ height: 64 }}
-                                        dropdownStyle={{ minWidth: 200 }}
-                                        value={selectedFalloutReason}
-                                        onChange={value => setSelectedFalloutReason(value)}
-                                    >
-                                        {falloutreasons.map((status, index) => (
-                                            <Option key={index} value={status}>{status}</Option>
-                                        ))}
-                                    </Select>
-
-                                    <Button
-                                        type="primary"
-                                        block
-                                        style={{
-                                            height: 60,
-                                            borderRadius: 100,
-                                            backgroundColor: '#0029F7',
-                                            color: '#fff',
-                                            fontWeight: 500,
-                                            fontSize: 16
-                                        }}
-                                        onClick={applyFilters} >
-                                        Apply
-                                    </Button>
-                                    <Button
-                                        type="default"
-                                        block
-                                        style={{
-                                            height: 60,
-                                            borderRadius: 100,
-                                            backgroundColor: '#E0E0E0',
-                                            color: '#000',
-                                            fontWeight: 500,
-                                            fontSize: 16,
-                                        }}
-                                        onClick={resetFilters}  // Call the resetFilters function when clicked
-                                    >
-                                        Reset Filters
-                                    </Button>
-                                </div>
-                            </Card>
-                        </Col>
-
+                      
                     </Row>
                 </Content>
                 <Modal
                     title="Denial Attestation Required"
                     open={isModalOpen}
                     onCancel={() => setIsModalOpen(false)}
-                    footer={[
-                        <Button key="cancel" onClick={() => setIsModalOpen(false)}>
-                            Cancel
-                        </Button>,
-                    <Button
-                    key="submit"
-                    type="primary"
-                    onClick={async () => {
-                      const payload = {
-                        ClaimID: modalRecord?.claimId,
-                        Summary: summary,
-                        Determination: manualDetermination,
-                        ClaimStatus: manualDetermination,
-                        Notes: notes,
-                        lastupdated: new Date().toLocaleDateString()
-                      };
-                  
-                      console.log("Submitting with payload:", payload);  // Log the payload being sent
-                  
-                      try {
-                        // API call to update claim status
-                        const response = await fetch('https://get-claims-data-910002420677.us-central1.run.app/claimupdate', {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(payload),
-                        });
-                  
-                        if (!response.ok) throw new Error(`Server responded with ${response.status}`);
-                  
-                        const result = await response.json();
-                        console.log('API Response:', result);
-                  
-                        console.log("Before update:", claimList);
-                        setClaimList((prevClaims) =>
-                          prevClaims.map((claim) =>
-                            claim.claimId === modalRecord.claimId
-                              ? {
-                                  ...claim,
-                                  status: manualDetermination, // Update the status
-                                  summary,
-                                  hasAttestation: true,  // Mark as attested
-                                  attestationComment: `Completed on ${new Date().toLocaleString()}`, // Add comment with timestamp
-                                  attestationDate: new Date().toLocaleDateString(), // Store date
-                                }
-                              : claim
-                          )
-                        );
-                        console.log("After update:", claimList);
-                        
-                  
-                        console.log("Claim list updated successfully");
-                        setIsModalOpen(false); // Close the modal
-                      } catch (error) {
-                        console.error('Submission error:', error);
-                      }
-                    }}
-                  >
-                    Submit
-                  </Button>
-                  
-                    ]}
+                    footer={null}
                 >
                     <div style={{ marginBottom: 16 }}>
                         <label><strong>Summary</strong></label>
@@ -854,32 +711,11 @@ function Claims() {
                             value={summary}
                             onChange={(e) => setSummary(e.target.value)}
                         />
+                        <label><strong>Action Taken</strong> : {showTransferredStatus === 'N' ? 'Transferred to Claim Companion' : 'Transferred to Claims Companion'}</label>
                     </div>
 
-                    <div style={{ marginBottom: 16 }}>
-                        <label><strong>Manual Determination</strong></label>
-                        <Select
-                            style={{ width: '100%' }}
-                            value={manualDetermination}
-                            onChange={(value) => setManualDetermination(value)}
-                        >
 
-                            <Option value="Denial Recommendation Approved">Denial Recommendation Approved</Option>
-                            <Option value="Denial Recommendation Overturned">Denial Recommendation Overturned</Option>
-
-                        </Select>
-                    </div>
-
-                    <div>
-                        <label><strong>Notes</strong></label>
-                        <TextArea
-                            rows={3}
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                        />
-                    </div>
                 </Modal>
-
             </Layout>
         </Spin>
     );
